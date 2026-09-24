@@ -390,7 +390,9 @@ fn phonetics(name: &str) -> (String, String) {
         }
         for syllable in buf.as_str().to_pinyin().flatten() {
             full.push_str(syllable.plain());
-            initials.push(syllable.first_letter());
+            // first_letter() 返回 &str（拼音首字母可能不是单字节），
+            // 所以是 push_str 而不是 push(char)
+            initials.push_str(syllable.first_letter());
         }
         buf.clear();
     }

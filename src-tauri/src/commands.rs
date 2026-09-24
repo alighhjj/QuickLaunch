@@ -529,7 +529,11 @@ pub fn spawn_scan(app: AppHandle) {
             state.drop_icon_cache();
             state.scanning.store(false, Ordering::SeqCst);
 
-            if let Ok(apps) = state.scan_cache.lock() {
+            // 先把 guard 绑成局部变量再序列化。若写成
+            // `if let Ok(apps) = state.scan_cache.lock() { .. }` 并把它当块尾表达式，
+            // MutexGuard 这个临时量会比本块的 `state` 活得更久，借用检查不过（E0597）。
+            let cached = state.scan_cache.lock();
+            if let Ok(apps) = cached {
                 if let Ok(bytes) = serde_json::to_vec(&*apps) {
                     let _ = config::write_atomic(&cache_path, &bytes);
                 }
