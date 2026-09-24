@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light" data-view="launcher">
+  <head>
+    <meta charset="UTF-8" />
+    <title>QuickLaunch · 界面预览</title>
+    <!-- 直接复用应用的真实样式表，任何改动都会立即反映到这里 -->
+    <link rel="stylesheet" href="../src/styles.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        overflow: auto;
+        background:
+          radial-gradient(circle at 18% 12%, #7fb2ff 0%, transparent 55%),
+          radial-gradient(circle at 82% 8%, #b98cff 0%, transparent 50%),
+          radial-gradient(circle at 50% 100%, #2b3a67 0%, transparent 60%),
+          linear-gradient(160deg, #3a4a7a, #1d2340);
+      }
+      .preview-bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.12);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      }
+      .preview-bar strong {
+        margin-right: auto;
+        font-size: 13px;
+        color: #fff;
+        font-weight: 600;
+      }
+      .preview-bar button {
+        padding: 5px 14px;
+        font-size: 12.5px;
+        font-family: inherit;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 7px;
+        cursor: pointer;
+      }
+      .preview-bar button[data-active="true"] {
+        color: #123;
+        background: #fff;
+        border-color: #fff;
+        font-weight: 600;
+      }
+      .stage {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 46px 24px 80px;
+      }
+      .stage > * {
+        flex: none;
+      }
+      #launcher-view {
+        width: 680px;
+        height: 420px;
+      }
+      #settings-view {
+        display: none;
+        width: 780px;
+        height: 620px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 26px 60px rgba(0, 0, 0, 0.4);
+      }
+      .preview-note {
+        max-width: 780px;
+        margin: 0 auto 8px;
+        padding: 0 24px 40px;
+        font-size: 12px;
+        line-height: 20px;
+        color: rgba(255, 255, 255, 0.72);
+      }
+      /* 预览里禁用交互态的光标变化，纯展示 */
+      .preview-note code {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-bar">
+      <strong>QuickLaunch 静态界面预览（非运行态，数据为示例）</strong>
+      <button type="button" id="tab-launcher" data-active="true">启动器面板</button>
+      <button type="button" id="tab-settings" data-active="false">设置窗口</button>
+    </div>
+
+    <div class="stage">
+      <!-- ═══════════ 启动器主面板 ═══════════ -->
+      <div class="launcher" id="launcher-view">
+        <div class="search">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="m15.8 15.8 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          <input value="chr" readonly />
+        </div>
+
+        <div class="results">
+          <div class="row" data-selected="true">
+            <img class="icon" style="width:32px;height:32px" src="../src-tauri/icons/128x128@2x.png" alt="" />
+            <div class="row-text">
+              <div class="row-name"><em class="hl">Chr</em>ome</div>
+              <div class="row-sub">/Applications/Google Chrome.app</div>
+            </div>
+            <div class="row-meta">
+              <span class="star" title="已收藏">★</span>
+              <span class="badge app">应用</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <span class="icon icon-letter" style="width:32px;height:32px;font-size:14px">V</span>
+            <div class="row-text">
+              <div class="row-name">Visual Studio Code</div>
+              <div class="row-sub">/Applications/Visual Studio Code.app</div>
+            </div>
+            <div class="row-meta"><span class="badge app">应用</span></div>
+          </div>
+
+          <div class="row">
+            <span class="icon icon-letter" style="width:32px;height:32px;font-size:14px">微</span>
+            <div class="row-text">
+              <div class="row-name">微信</div>
+              <div class="row-sub">/Applications/WeChat.app</div>
+            </div>
+            <div class="row-meta">
+              <span class="star" title="已收藏">★</span>
+              <span class="badge app">应用</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <span class="icon icon-glyph" style="width:32px;height:32px" data-kind="folder">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 7.2c0-1 .8-1.7 1.7-1.7h4l1.9 2h7.7c.9 0 1.7.8 1.7 1.7v7.6c0 .9-.8 1.7-1.7 1.7H4.7c-.9 0-1.7-.8-1.7-1.7V7.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <div class="row-text">
+              <div class="row-name">项目目录</div>
+              <div class="row-sub">~/Projects</div>
+            </div>
+            <div class="row-meta"><span class="badge folder">文件夹</span></div>
+          </div>
+
+          <div class="row">
+            <span class="icon icon-glyph" style="width:32px;height:32px" data-kind="url">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <path d="M3.8 12h16.4M12 3.8c2.2 2.3 3.3 5.1 3.3 8.2S14.2 17.9 12 20.2c-2.2-2.3-3.3-5.1-3.3-8.2S9.8 6.1 12 3.8Z" fill="none" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+            </span>
+            <div class="row-text">
+              <div class="row-name">GitHub</div>
+              <div class="row-sub">https://github.com</div>
+            </div>
+            <div class="row-meta"><span class="badge url">网址</span></div>
+          </div>
+
+          <div class="row">
+            <span class="icon icon-glyph" style="width:32px;height:32px" data-kind="command">
+              <svg viewBox="0 0 24 24">
+                <rect x="3.2" y="4.2" width="17.6" height="15.6" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <path d="m7.6 9.6 2.6 2.6-2.6 2.6M12.6 15h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <div class="row-text">
+              <div class="row-name">启动开发服务器</div>
+              <div class="row-sub">~/Projects/my-app</div>
+            </div>
+            <div class="row-meta"><span class="badge command">命令</span></div>
+          </div>
+        </div>
+
+        <div class="hints">
+          <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+          <span><kbd>↩</kbd> 启动</span>
+          <span><kbd>⌘</kbd><kbd>D</kbd> 收藏</span>
+          <span><kbd>⌘</kbd><kbd>K</kbd> 清空</span>
+          <span><kbd>⌘</kbd><kbd>,</kbd> 设置</span>
+          <span class="hints-right">
+            共 412 个条目
+            <span class="hints-shortcut">⌥ Space 唤起</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ═══════════ 设置窗口 ═══════════ -->
+      <div id="settings-view">
+        <div class="settings">
+          <nav class="settings-nav">
+            <button type="button" data-active="true">通用</button>
+            <button type="button">外观</button>
+            <button type="button">数据源</button>
+            <button type="button">快捷键</button>
+            <button type="button">关于</button>
+            <div class="settings-nav-foot">v0.1.0</div>
+          </nav>
+          <main class="settings-main">
+            <section class="section">
+              <header>
+                <h2>通用</h2>
+                <p>启动器的基本行为。</p>
+              </header>
+              <div class="section-body">
+                <div class="field">
+                  <div class="field-label">
+                    <span>开机自启</span>
+                    <small>登录时自动启动并常驻菜单栏</small>
+                  </div>
+                  <div class="field-control">
+                    <button type="button" class="switch" data-on="false"><span class="switch-knob"></span></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label">
+                    <span>失去焦点时隐藏</span>
+                    <small>切到其他应用后自动收起面板</small>
+                  </div>
+                  <div class="field-control">
+                    <button type="button" class="switch" data-on="true"><span class="switch-knob"></span></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label">
+                    <span>在 Dock 中显示图标</span>
+                    <small>关闭后仅驻留菜单栏，但 macOS 下取焦行为不稳定</small>
+                  </div>
+                  <div class="field-control">
+                    <button type="button" class="switch" data-on="true"><span class="switch-knob"></span></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label">
+                    <span>显示条目数</span>
+                    <small>20 条</small>
+                  </div>
+                  <div class="field-control">
+                    <input type="range" min="5" max="60" value="20" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="section">
+              <header>
+                <h2>外观</h2>
+                <p>主题、透明度与图标尺寸。</p>
+              </header>
+              <div class="section-body">
+                <div class="field">
+                  <div class="field-label"><span>主题</span></div>
+                  <div class="field-control">
+                    <div class="segmented">
+                      <button type="button" data-active="true">跟随系统</button>
+                      <button type="button" data-active="false">浅色</button>
+                      <button type="button" data-active="false">深色</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label">
+                    <span>面板不透明度</span>
+                    <small>82%</small>
+                  </div>
+                  <div class="field-control">
+                    <input type="range" min="40" max="100" value="82" />
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-label"><span>图标大小</span></div>
+                  <div class="field-control">
+                    <div class="segmented">
+                      <button type="button" data-active="false">小</button>
+                      <button type="button" data-active="true">中</button>
+                      <button type="button" data-active="false">大</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="section">
+              <header>
+                <h2>自定义条目</h2>
+                <p>文件夹、网址与 Shell 命令，同样支持拼音搜索。</p>
+              </header>
+              <div class="section-body">
+                <ul class="item-list">
+                  <li>
+                    <div class="item-text">
+                      <span class="item-name">项目目录<span class="badge folder">文件夹</span></span>
+                      <span class="item-target">~/Projects</span>
+                    </div>
+                    <button type="button" class="btn btn-danger">删除</button>
+                  </li>
+                  <li>
+                    <div class="item-text">
+                      <span class="item-name">启动开发服务器<span class="badge command">命令</span></span>
+                      <span class="item-target">npm run dev</span>
+                    </div>
+                    <button type="button" class="btn btn-danger">删除</button>
+                  </li>
+                </ul>
+                <div class="custom-form">
+                  <h3>新增条目</h3>
+                  <div class="custom-grid">
+                    <label>
+                      <span>类型</span>
+                      <div class="segmented">
+                        <button type="button" data-active="false">文件夹</button>
+                        <button type="button" data-active="false">网址</button>
+                        <button type="button" data-active="true">命令</button>
+                      </div>
+                    </label>
+                    <label>
+                      <span>名称</span>
+                      <input value="启动开发服务器" readonly />
+                    </label>
+                    <label class="span-2">
+                      <span>Shell 命令</span>
+                      <input value="npm run dev" readonly />
+                    </label>
+                    <label>
+                      <span>工作目录（可选）</span>
+                      <input value="~/Projects/my-app" readonly />
+                    </label>
+                    <label class="inline">
+                      <button type="button" class="switch" data-on="true"><span class="switch-knob"></span></button>
+                      <span>执行前需要确认</span>
+                    </label>
+                  </div>
+                  <div class="row-actions">
+                    <button type="button" class="btn btn-primary">添加条目</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="notice" data-kind="ok">已保存</div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <p class="preview-note">
+      说明：本页复用 <code>src/styles.css</code> 与真实组件结构，仅用于在没有 macOS 环境时预览版式与配色。
+      阴影、圆角、半透明（<code>backdrop-filter</code>）在 macOS 的 WKWebView 中呈现会更接近原生。
+      交互逻辑请以 <code>src/views/</code> 中的实现为准。
+    </p>
+
+    <script>
+      const launcher = document.getElementById("launcher-view");
+      const settings = document.getElementById("settings-view");
+      const tabLauncher = document.getElementById("tab-launcher");
+      const tabSettings = document.getElementById("tab-settings");
+
+      function show(which) {
+        const isSettings = which === "settings";
+        launcher.style.display = isSettings ? "none" : "flex";
+        settings.style.display = isSettings ? "block" : "none";
+        tabLauncher.dataset.active = String(!isSettings);
+        tabSettings.dataset.active = String(isSettings);
+        document.documentElement.dataset.view = isSettings ? "settings" : "launcher";
+        document.documentElement.dataset.theme = isSettings ? "light" : "light";
+        document.body.style.background = isSettings
+          ? "linear-gradient(160deg, #dfe4ee, #c9d2e4)"
+          : "";
+      }
+
+      tabLauncher.addEventListener("click", () => show("launcher"));
+      tabSettings.addEventListener("click", () => show("settings"));
+    </script>
+  </body>
+</html>

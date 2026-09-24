@@ -1,0 +1,47 @@
+[package]
+name = "quicklaunch"
+version = "0.1.0"
+description = "QuickLaunch - 轻量级 macOS 应用启动器"
+authors = ["zhaoyajun"]
+edition = "2021"
+rust-version = "1.77.2"
+license = "MIT"
+
+# Tauri v2 的标准布局：业务逻辑放在 lib，main.rs 只做入口，
+# 这样后续若要接移动端或做集成测试都无需重构。
+[lib]
+name = "quicklaunch_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [
+    # 无边框透明窗口在 macOS 上必须开启（对应 tauri.conf.json 的 macOSPrivateApi）
+    "macos-private-api",
+    # 菜单栏常驻图标
+    "tray-icon",
+    # 需要解码 PNG（托盘图标 + ICNS 内嵌的 PNG 尺寸判定）
+    "image-png",
+] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-notification = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 纯 Rust 实现的汉字转拼音，无本地依赖，CI 交叉编译无风险
+pinyin = "0.10"
+# Info.plist 解析（纯 Rust）
+plist = "1"
+# 图标转 data URL
+base64 = "0.22"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

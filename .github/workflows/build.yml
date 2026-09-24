@@ -1,0 +1,86 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 先跑静态契约校验：几秒钟，把「IPC 名字对不上」「事件没 emit」
+  # 「窗口 label 漏配权限」这类只在运行时报错的坑挡在编译之前
+  verify:
+    name: 静态契约校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build frontend
+        run: npm run build
+      - name: Verify contracts
+        run: python3 scripts/verify.py
+
+  macos-universal:
+    name: macOS Universal (.dmg / .app)
+    needs: verify
+    runs-on: macos-latest
+    env:
+      # 交叉编译时 rustc 会读取它来决定最低系统版本；同时 Tauri 的
+      # bundle.macOS.minimumSystemVersion 也写的是 12.3，两处保持一致。
+      MACOSX_DEPLOYMENT_TARGET: "12.3"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # 两个 target 都装上，--target universal-apple-darwin 需要它们同时存在
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: universal
+
+      - name: Install dependencies
+        run: npm ci
+
+      # tauri-action 会在打包前跑 beforeBuildCommand（即 npm run build），
+      # 这里只做纯类型检查，早一步暴露 TS 错误，省下一次完整构建
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target universal-apple-darwin
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickLaunch-macOS-universal
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app

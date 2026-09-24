@@ -1,0 +1,13 @@
+# 统一以 LF 入库：开发在 Windows、构建在 macOS/Ubuntu，
+# 统一行尾可避免每次提交都出现整文件级 diff 噪音。
+* text=auto eol=lf
+
+# 二进制资源不要做行尾转换，否则图标会被写坏
+*.png  binary
+*.ico  binary
+*.icns binary
+
+# Windows 侧脚本保持 CRLF
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
