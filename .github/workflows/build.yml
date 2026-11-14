@@ -3,9 +3,15 @@ name: build
 on:
   push:
     branches: [main, master]
+    # 打 v* 标签时除了构建，还由 tauri-action 发布 Release（.dmg / .app）
+    tags: ['v*']
   pull_request:
     branches: [main, master]
   workflow_dispatch:
+
+# tauri-action 创建 Release 需要写权限
+permissions:
+  contents: write
 
 concurrency:
   group: build-${{ github.ref }}
@@ -74,6 +80,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: --target universal-apple-darwin
+          # 只有 tag 触发的运行才发布 Release；分支构建留空即跳过
+          tagName: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
+          releaseName: ${{ startsWith(github.ref, 'refs/tags/v') && format('QuickLaunch {0}', github.ref_name) || '' }}
+          releaseDraft: false
+          prerelease: false
+          releaseBody: |
+            QuickLaunch 轻量级 macOS 启动器（Universal：Apple Silicon + Intel，最低 macOS 12.3）。
+
+            **安装**：下载 `.dmg` → 拖入「应用程序」→ 首次打开请右键选择「打开」
+            （未做 Apple 公证，直接双击会被 Gatekeeper 拦截）。
+
+            - `Option + Space` 唤起，输入关键词启动应用、打开文件夹/网址、执行自定义命令
+            - 支持拼音检索、收藏与使用频率排序
+            - 不联网、不申请额外系统权限
 
       - name: Upload bundle
         uses: actions/upload-artifact@v4
